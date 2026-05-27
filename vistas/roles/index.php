@@ -2,7 +2,7 @@
 require_once '../../modelos/conexion.php';
 session_start();
 
-$rol = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'admin';
+$rol = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'consulta';
 $adminName = isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : null;
 ?>
 <!DOCTYPE html>
@@ -1084,7 +1084,7 @@ $adminName = isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : null;
     </div>
 </a>
 
-    <a class="main-module-card module-blue" href="/IFU/html/index.html?rol=<?php echo $rol; ?>">
+    <a class="main-module-card module-blue" href="/IFU/index.php?rol=consulta">
         <div class="main-module-bg-number">04</div>
 
         <div class="module-top">
