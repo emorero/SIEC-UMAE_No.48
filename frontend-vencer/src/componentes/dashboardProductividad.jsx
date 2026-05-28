@@ -1199,6 +1199,24 @@ return (
                          />
                     </div>
 
+                    {/* SECCIÓN 5: HOSPITALIZACIÓN */}
+                    <div style={{
+                        display: areaSidebar === 'hospitalizacion' ? 'block' : 'none',
+                        visibility: areaSidebar === 'hospitalizacion' ? 'visible' : 'hidden',
+                        position: areaSidebar === 'hospitalizacion' ? 'relative' : 'absolute',
+                        left: areaSidebar === 'hospitalizacion' ? '0' : '-9999px',
+                        width: '100%'
+                    }}>
+                        <TableroHospitalizacion
+                            datos={hospitalizacionParaTablero}
+                            diccionarioDivisiones={diccionarioEspecialidades} l
+                            diccionarioEspecialidades={diccionarioEspecialidades}
+                            diccionarioCIE={diccionarioCIE}
+                            mostrarTablas={mostrarTablas}
+                            setExportData={setDatosHospitalizacion}
+                        />
+                    </div>
+
                     {/* MENSAJE DE EN CONSTRUCCIÓN */}
                     {areaSidebar !== 'consulta_externa' && areaSidebar !== 'paramedicos' && areaSidebar !== 'urgencias' && areaSidebar !=='cirugias' && (
                         <div className="flex flex-col items-center justify-center h-full text-slate-400 p-16 border-2 border-dashed border-slate-300 rounded-3xl bg-slate-100/50">
