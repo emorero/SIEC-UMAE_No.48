@@ -148,8 +148,7 @@ export default function TableroHospitalizacion({ datos = [], mostrarTablas = fal
         if (!datos || datos.length === 0) return { labels: [], datasets: [] };
         const conteo = datos.reduce((acc, curr) => {
             let motivo = String(curr.motivo_egreso || '').trim().toUpperCase();
-            if (motivo === '') motivo = "NO ESPECIFICADO";
-            if (motivo.includes('ABANDONO')) return acc;
+            if (motivo === '') motivo = "NO ESPECIFICADO"; 
 
             acc[motivo] = (acc[motivo] || 0) + 1;
             return acc;
