@@ -64,8 +64,15 @@ try {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 18px;
+            padding: 0 22px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+        }
+
+        .brand-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
         }
 
         .brand {
@@ -75,23 +82,38 @@ try {
             white-space: nowrap;
         }
 
-        .nav-center {
-            display: flex;
+        .back-home-btn {
+            display: inline-flex;
             align-items: center;
-            gap: 24px;
-        }
-
-        .nav-center a {
+            gap: 10px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.08);
             color: white;
             text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 10px;
             font-weight: 700;
-            letter-spacing: .5px;
             font-size: 15px;
-            transition: .2s ease;
+            transition: .22s ease;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
         }
 
-        .nav-center a:hover {
-            color: #f3d37b;
+        .back-home-btn i {
+            font-size: 15px;
+        }
+
+        .back-home-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .brand-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+            flex-wrap: wrap;
         }
 
         .user-area {
@@ -129,11 +151,16 @@ try {
             margin-bottom: 48px;
         }
 
+        .back-home-btn {
+            font-size: 14px;
+            padding: 9px 14px;
+        }
+
         .header h1 {
             color: #8a1746;
             font-size: 42px;
             font-weight: 600;
-            letter-spacing: 3px;
+            letter-spacing: 1px;
             margin: 0 0 12px;
         }
 
@@ -291,9 +318,7 @@ try {
                 gap: 12px;
             }
 
-            .nav-center {
-                gap: 12px;
-                flex-wrap: wrap;
+            .brand-area {
                 justify-content: center;
             }
 
@@ -314,7 +339,7 @@ try {
 
             .header h1 {
                 font-size: 34px;
-                letter-spacing: 2px;
+                letter-spacing: .8px;
             }
         }
 
@@ -338,7 +363,7 @@ try {
 
             .header h1 {
                 font-size: 28px;
-                letter-spacing: 1px;
+                letter-spacing: .5px;
             }
 
             .brand {
@@ -355,14 +380,12 @@ try {
 <body>
 
     <nav class="topbar">
-        <div class="brand">UMAE 48 - ADMIN</div>
+        <div class="brand-area">
 
-        <div class="nav-center">
-            <a href="admin.php">INICIO</a>
-            <a href="/graficos/index.html?modulo=productividad&rol=admin">PRODUCTIVIDAD</a>
-            <a href="../productividad/vencer.php">VENCER</a>
-            <a href="../normatividad/normatividad_inicio.php">NORMATIVIDAD</a>
-            <a href="usuariosAdmin.php">USUARIOS</a>
+            <a href="../roles/index.php" class="back-home-btn" title="Volver al inicio">
+                <i class="fa-solid fa-house"></i>
+                <span>Volver al Inicio</span>
+            </a>
         </div>
 
         <div class="user-area">
@@ -374,7 +397,7 @@ try {
     <main class="main">
         <section class="header">
             <h1>Panel de Control</h1>
-            <p>Gestión de indicadores y administración del sistema</p>
+            <p>Administracion del Sistema y Gestión de bases de datos</p>
         </section>
 
         <section class="cards">
@@ -392,8 +415,8 @@ try {
                 <i class="fa-solid fa-chart-line teal"></i>
                 <h3>Indicadores</h3>
                 <p>HOSP, Semanales, Mensual y Mensual Acumulado.</p>
-                <a class="teal" href="/graficos/index.html?modulo=productividad&vista=dashboard&tab=consulta_externa&rol=admin">
-                    Ir a Tableros
+                <a class="teal" href="/graficos/index.html?modulo=indicadores&rol=admin">
+                    Ir a Indicadores
                 </a>
             </div>
 
