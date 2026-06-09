@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Bar, Doughnut } from 'react-chartjs-2';
-import { Users, Clock, ClipboardList, TrendingUp, Filter } from 'lucide-react';
+import { Users, Clock, ClipboardList, TrendingUp } from 'lucide-react';
 
 // =================================================================
 // SUB-COMPONENTE LOCAL: Tabla de Datos Estilo Producción Unificado
@@ -57,11 +57,9 @@ const TablaDatos = ({ titulo1, titulo2, labels, data, dataDias, dataPromedios, t
 const anchoDinamico = (cantidad) => cantidad > 15 ? `${cantidad * 45}px` : '100%';
 
 // =================================================================
-// COMPONENTE PRINCIPAL: TABLERO HOSPITALIZACIÓN (LIMPÌO Y NACIONAL)
+// COMPONENTE PRINCIPAL: TABLERO HOSPITALIZACIÓN (CONECTADO A FILTROS GLOBALES)
 // =================================================================
 export default function TableroHospitalizacion({ datos = [], mostrarTablas = false, setExportData }) {
-    const [divisionSeleccionada, setDivisionSeleccionada] = useState("");
-    const [especialidadSeleccionada, setEspecialidadSeleccionada] = useState("");
 
     // SINCRONIZACIÓN AUTOMÁTICA CON EL PADRE PARA EXCEL
     useEffect(() => {
@@ -69,29 +67,6 @@ export default function TableroHospitalizacion({ datos = [], mostrarTablas = fal
             setExportData(datos || []);
         }
     }, [datos, setExportData]);
-
-    const listaDeDivisiones = useMemo(() => {
-        const divisionesUnicas = new Set();
-        datos.forEach(item => {
-            if (item.division) divisionesUnicas.add(item.division.toUpperCase().trim());
-        });
-        return Array.from(divisionesUnicas).sort();
-    }, [datos]);
-
-    const listaDeEspecialidadesFiltradas = useMemo(() => {
-        const   especUnicas = new Set();
-        datos.forEach(item => {
-            const div = item.division ? item.division.toUpperCase().trim() : "";
-            if (item.especialidad && (!divisionSeleccionada || div === divisionSeleccionada.toUpperCase().trim())) {
-                especUnicas.add(item.especialidad.toUpperCase().trim());
-            }
-        });
-        return Array.from(especUnicas).sort();
-    }, [datos, divisionSeleccionada]);
-
-    useEffect(() => {
-        setEspecialidadSeleccionada("");
-    }, [divisionSeleccionada]);
 
     const kpis = useMemo(() => {
         if (!datos || datos.length === 0) return { total: 0, promedioEstancia: '0.0', totalDias: 0 };
@@ -125,10 +100,6 @@ export default function TableroHospitalizacion({ datos = [], mostrarTablas = fal
 
         const conteo = datos.reduce((acc, curr) => {
             const nombreEsp = curr.especialidad ? curr.especialidad.toUpperCase().trim() : "NO ESPECIFICADA";
-            const divisionEsp = curr.division ? curr.division.toUpperCase().trim() : "";
-
-            if (divisionSeleccionada && divisionEsp !== divisionSeleccionada.toUpperCase().trim()) return acc;
-
             if (!acc[nombreEsp]) acc[nombreEsp] = { egresos: 0, dias: 0 };
             acc[nombreEsp].egresos++;
             acc[nombreEsp].dias += Number(curr.dias_estancia) || 0;
@@ -142,7 +113,7 @@ export default function TableroHospitalizacion({ datos = [], mostrarTablas = fal
             dataDias: ordenados.map(item => item[1].dias),
             promedios: ordenados.map(item => item[1].egresos > 0 ? (item[1].dias / item[1].egresos).toFixed(1) : '0.0')
         };
-    }, [datos, divisionSeleccionada]);
+    }, [datos]);
 
     const chartMotivos = useMemo(() => {
         if (!datos || datos.length === 0) return { labels: [], datasets: [] };
@@ -166,13 +137,6 @@ export default function TableroHospitalizacion({ datos = [], mostrarTablas = fal
 
         const conteo = datos.reduce((acc, curr) => {
             if (!curr || !curr.diagnostico_egreso) return acc;
-
-            const divisionPac = curr.division ? curr.division.toUpperCase().trim() : "";
-            const especPac = curr.especialidad ? curr.especialidad.toUpperCase().trim() : "";
-
-            if (divisionSeleccionada && divisionPac !== divisionSeleccionada.toUpperCase().trim()) return acc;
-            if (especialidadSeleccionada && especPac !== especialidadSeleccionada.toUpperCase().trim()) return acc;
-
             const nombreCIE = String(curr.diagnostico_egreso).trim().toUpperCase();
 
             if (!acc[nombreCIE]) acc[nombreCIE] = { egresos: 0, dias: 0 };
@@ -188,7 +152,7 @@ export default function TableroHospitalizacion({ datos = [], mostrarTablas = fal
             dataDias: ordenados.map(item => item[1].dias),
             promedios: ordenados.map(item => item[1].egresos > 0 ? (item[1].dias / item[1].egresos).toFixed(1) : '0.0')
         };
-    }, [datos, divisionSeleccionada, especialidadSeleccionada]);
+    }, [datos]);
 
     const chartOptionsVertical = { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } };
 
@@ -235,16 +199,8 @@ export default function TableroHospitalizacion({ datos = [], mostrarTablas = fal
 
             {/* ESPECIALIDADES */}
             <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col mb-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 border-b border-slate-100 pb-3">
+                <div className="mb-4 border-b border-slate-100 pb-3">
                     <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wide">Egresos y Rendimiento por Especialidad</h3>
-                    <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-inner">
-                        <Filter size={14} className="text-slate-400" />
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">División:</label>
-                        <select value={divisionSeleccionada} onChange={(e) => setDivisionSeleccionada(e.target.value)} className="bg-transparent text-xs font-bold text-slate-700 focus:outline-none cursor-pointer uppercase pr-4">
-                            <option value="">-- Ver Todas --</option>
-                            {listaDeDivisiones.map((div, idx) => <option key={idx} value={div}>{div}</option>)}
-                        </select>
-                    </div>
                 </div>
 
                 <div className={`flex-1 grid grid-cols-1 ${mostrarTablas && chartEspecialidades.labels.length > 0 ? 'lg:grid-cols-5 gap-6' : 'lg:grid-cols-1'}`}>
@@ -256,27 +212,15 @@ export default function TableroHospitalizacion({ datos = [], mostrarTablas = fal
                             {mostrarTablas && <div className="lg:col-span-2 h-[400px] overflow-hidden"><TablaDatos titulo1="Especialidad" titulo2="Egresos" labels={chartEspecialidades.labels} data={chartEspecialidades.datasets[0].data} dataDias={chartEspecialidades.dataDias} dataPromedios={chartEspecialidades.promedios} /></div>}
                         </>
                     ) : (
-                        <div className="text-center py-12 text-slate-400 border border-dashed border-slate-200 rounded-xl bg-slate-50/50 w-full col-span-5">No se detectaron egresos para la división seleccionada.</div>
+                        <div className="text-center py-12 text-slate-400 border border-dashed border-slate-200 rounded-xl bg-slate-50/50 w-full col-span-5">No se detectaron egresos con los filtros activos.</div>
                     )}
                 </div>
             </div>
 
             {/* DIAGNÓSTICOS CIE-10 */}
             <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 border-b border-slate-100 pb-3">
+                <div className="mb-4 border-b border-slate-100 pb-3">
                     <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wide flex items-center gap-2"><TrendingUp size={18} className="text-slate-500" /> Top 20 Diagnósticos de Egreso (CIE-10)</h3>
-                    <div className="flex flex-wrap items-center gap-3">
-                        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-inner">
-                            <Filter size={12} className="text-slate-400" />
-                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">División:</label>
-                            <select value={divisionSeleccionada} onChange={(e) => setDivisionSeleccionada(e.target.value)} className="bg-transparent text-[11px] font-bold text-slate-700 focus:outline-none cursor-pointer uppercase pr-2"><option value="">-- Todas --</option>{listaDeDivisiones.map((div, idx) => <option key={idx} value={div}>{div}</option>)}</select>
-                        </div>
-                        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-inner">
-                            <Filter size={12} className="text-slate-400" />
-                            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Especialidad:</label>
-                            <select value={especialidadSeleccionada} onChange={(e) => setEspecialidadSeleccionada(e.target.value)} className="bg-transparent text-[11px] font-bold text-slate-700 focus:outline-none cursor-pointer uppercase pr-2 max-w-[200px]"><option value="">-- Todas --</option>{listaDeEspecialidadesFiltradas.map((esp, idx) => <option key={idx} value={esp}>{esp}</option>)}</select>
-                        </div>
-                    </div>
                 </div>
 
                 <div className={`flex-1 grid grid-cols-1 ${mostrarTablas && chartDiagnosticos.labels.length > 0 ? 'lg:grid-cols-5 gap-6' : 'lg:grid-cols-1'}`}>
@@ -288,7 +232,7 @@ export default function TableroHospitalizacion({ datos = [], mostrarTablas = fal
                             {mostrarTablas && <div className="lg:col-span-2 h-[400px] overflow-hidden"><TablaDatos titulo1="Diagnóstico de Egreso" titulo2="Frecuencia" labels={chartDiagnosticos.labels} data={chartDiagnosticos.datasets[0].data} dataDias={chartDiagnosticos.dataDias} dataPromedios={chartDiagnosticos.promedios} total={false} /></div>}
                         </>
                     ) : (
-                        <div className="text-center py-12 text-slate-400 border border-dashed border-slate-200 rounded-xl bg-slate-50/50 w-full col-span-5">No se detectaron diagnósticos para los filtros seleccionados.</div>
+                        <div className="text-center py-12 text-slate-400 border border-dashed border-slate-200 rounded-xl bg-slate-50/50 w-full col-span-5">No se detectaron diagnósticos con los filtros activos.</div>
                     )}
                 </div>
             </div>
